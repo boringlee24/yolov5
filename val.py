@@ -43,7 +43,7 @@ from utils.general import (LOGGER, check_dataset, check_img_size, check_requirem
 from utils.metrics import ConfusionMatrix, ap_per_class, box_iou
 from utils.plots import output_to_target, plot_images, plot_val_study
 from utils.torch_utils import select_device, time_sync
-
+import pdb
 
 def save_one_txt(predn, save_conf, shape, file):
     # Save one txt result
@@ -190,7 +190,7 @@ def run(
     jdict, stats, ap, ap_class = [], [], [], []
     callbacks.run('on_val_start')
     pbar = tqdm(dataloader, desc=s, bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}')  # progress bar
-    for batch_i, (im, targets, paths, shapes) in enumerate(pbar):
+    for batch_i, (im, targets, paths, shapes) in enumerate(pbar):        
         callbacks.run('on_val_batch_start')
         t1 = time_sync()
         if cuda:
