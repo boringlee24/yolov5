@@ -12,6 +12,7 @@ from flask import jsonify
 from flask import make_response
 import json
 from json import JSONEncoder
+import copy
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]  # YOLOv5 root directory
@@ -42,11 +43,20 @@ def run(weights, half):
     model = torch.hub.load(repo_or_dir=f'{ROOT}', model='custom', source='local', path=f'{ROOT}/{args.weights}.pt', force_reload=True)#, pretrained=True)
     if torch.cuda.is_available() and half:
         model.half()
+    # warm up the model
+    if args.weights == 'yolov5x6':
+        size = 1280
+    else:
+        size = 640
+
+    result = model('/GIT/datasets/coco/images/val2017/000000000139.jpg', size=size)
     return model
 
 def tensor2str(tsr):
-    x = tsr.detach().cpu().numpy()
-    x = np.around(x, decimals=4)
+    x = tsr.detach().cpu().numpy().astype(np.float)
+    # x_rnd = np.around(x, decimals=4)    
+    # x_new = copy.deepcopy(x_rnd)
+    x = x.round(decimals=4)
     x = json.dumps(x, cls=NumpyArrayEncoder)
     return x
 
@@ -92,7 +102,6 @@ def predict():
             'bbox': response,
             'batch': len(response)
         }    
-        # pdb.set_trace()
         return make_response(jsonify(output), 201)
 
 # def get_prediction(img_bytes, model, size):
