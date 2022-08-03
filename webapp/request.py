@@ -27,6 +27,7 @@ for i in range(len(request)):
 
 test_response = requests.post(test_url, files=test_files)
 if test_response.ok:
+    pdb.set_trace()
     print("Upload completed successfully!")
     print(test_response.text)
 else:

@@ -2,6 +2,8 @@ import time
 import signal
 import os
 import numpy as np
+import requests
+import json
 
 # decode numpy array byte stream
 class NumpyArrayEncoder(JSONEncoder):
@@ -13,7 +15,7 @@ class NumpyArrayEncoder(JSONEncoder):
 # every certain amount of time, send interrupt signal to PID
 def clock(interval, pid, images, batch_size):
     while True:
-        global request = random.sample(images, batch_size) # images to infer
+        global request_list = random.sample(images, batch_size) # images to infer
         if handler_busy:
             # drop frame
             global drop_cnt += 1
@@ -21,9 +23,19 @@ def clock(interval, pid, images, batch_size):
             os.kill(pid, singal.SIGPOLL)
         time.sleep(interval)
 
+def query_cloud(url, images):
+    file_list = []
+    for i in range(len(images)):
+        file_list.append(('img', open(files[i], 'rb')))
+    test_response = requests.post(url, files=file_list)
+    if test_response.ok:
+        return test_response
+    else:
+        raise RuntimeError('did not receive valid response from cloud')
+
 # confidence level based offloader
 # offload when edge max confidence < threshold
-class Basic_Offloader:
+class Basic_Agent:
     def __init__(self, conf_thres, top_n):
         self.thres = conf_thres
         self.top_n = top_n
@@ -41,6 +53,19 @@ class Basic_Offloader:
             return False
         else:
             return True
+
+class Offload_Object:
+    def __init__(self):
+        self.index = []
+        self.requests = []
+    def add(self, index, request):
+        self.index.append(index)
+        self.requests.append(request)
+    def query(self, url):
+        response = query_cloud(url, self.requests)
+        decoded = json.loads(response._content.decode('utf-8'))['bbox']
+        decoded = [np.asarray(json.loads(x)) for x in decoded]
+        return decoded
 
 
 

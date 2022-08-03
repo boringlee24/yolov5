@@ -40,7 +40,7 @@ def run(weights, half):
     # device = select_device(device)
     # model = DetectMultiBackend(f'{ROOT}/{weights}.pt', device=device, fp16=half)
     # model.warmup(imgsz=(1, 3, *imgsz))  # warmup    
-    model = torch.hub.load(repo_or_dir=f'{ROOT}', model='custom', source='local', path=f'{ROOT}/{args.weights}.pt', force_reload=True, pretrained=True)
+    model = torch.hub.load(repo_or_dir=f'{ROOT}', model='custom', source='local', path=f'{ROOT}/{args.weights}.pt', force_reload=True)
     if torch.cuda.is_available() and half:
         model.half()
     # warm up the model
@@ -65,17 +65,17 @@ def tensor2str(tsr):
 def index():
     return f'<p>Cloud Object Detection Engine</p>'
 
-DETECTION_URL = "/detect"
+DETECTION_URL = '/detect'
 
-@app.route(DETECTION_URL, methods=["POST"])
+@app.route(DETECTION_URL, methods=['POST'])
 def predict():
-    if request.method != "POST":
+    if request.method != 'POST':
         return
 
 
-    if request.files.get("img"):
+    if request.files.get('img'):
         # Method 1
-        # with request.files["image"] as f:
+        # with request.files['image'] as f:
         #     im = Image.open(io.BytesIO(f.read()))
 
         # Method 2
