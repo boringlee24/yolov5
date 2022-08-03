@@ -40,7 +40,7 @@ def run(weights, half):
     # device = select_device(device)
     # model = DetectMultiBackend(f'{ROOT}/{weights}.pt', device=device, fp16=half)
     # model.warmup(imgsz=(1, 3, *imgsz))  # warmup    
-    model = torch.hub.load(repo_or_dir=f'{ROOT}', model='custom', source='local', path=f'{ROOT}/{args.weights}.pt', force_reload=True)#, pretrained=True)
+    model = torch.hub.load(repo_or_dir=f'{ROOT}', model='custom', source='local', path=f'{ROOT}/{args.weights}.pt', force_reload=True, pretrained=True)
     if torch.cuda.is_available() and half:
         model.half()
     # warm up the model
@@ -53,7 +53,7 @@ def run(weights, half):
     return model
 
 def tensor2str(tsr):
-    x = tsr.detach().cpu().numpy().astype(np.float)
+    x = tsr.cpu().numpy().astype(np.float64) #detach().
     # x_rnd = np.around(x, decimals=4)    
     # x_new = copy.deepcopy(x_rnd)
     x = x.round(decimals=4)
@@ -122,7 +122,7 @@ def predict():
 
 def parse():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='yolov5x', help='model name: yolov5s, yolov5x, yolov5x6')
+    parser.add_argument('--weights', nargs='+', type=str, default='yolov5x6', help='model name: yolov5s, yolov5x, yolov5x6')
     # parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
     # parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
